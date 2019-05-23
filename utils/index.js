@@ -22,3 +22,13 @@ exports.filterSockets = (socketsHash, clientId, publicIp) => {
     });
     return { socketsArray, idArray };
 };
+
+/**
+ * Handles the redirection of insecure traffic (port 80) to HTTPS
+ * @param {ClientRequest} req
+ * @param {ClientResponse} res
+ */
+exports.handleInsecureConnection = (req, res) => {
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
+};

@@ -1,11 +1,22 @@
-const { filterSockets } = require('./utils');
+const { filterSockets, handleInsecureConnection } = require('./utils');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const app = express();
-const server = require('https').createServer({ key: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/privkey.pem'), cert: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/fullchain.pem') }, app).listen(process.env.PORT || 443, '0.0.0.0');
-const io = require('socket.io')(server);
 var useragent = require('useragent');
+var io = require('socket.io');
+
+// HTTP (secure) Server
+const secureServer = require('https')
+.createServer({ key: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/privkey.pem'), cert: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/fullchain.pem') }, app)
+.listen(process.env.PORT || 443, '0.0.0.0');
+
+io = io(secureServer);
+
+// HTTP (insecure) Server
+const httpServer = require('http')
+.createServer(handleInsecureConnection)
+.listen(80);
 
 app.use(express.static(path.join(__dirname, 'build')));
 
