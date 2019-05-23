@@ -1,0 +1,27 @@
+.PeerBubble {
+    font-size: .8rem;
+    
+    &__bubble {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 100%;
+        height: 4rem;
+        width: 4rem;
+        min-height: 4rem;
+        min-width: 4rem;
+        background: #000;
+        color: #FFF;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    &__device-info {
+        text-align: center;
+        padding-top: .35rem;
+
+        span {
+            display: block;
+        }
+    }
+}

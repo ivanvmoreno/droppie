@@ -1,0 +1,36 @@
+@import '../../utils/mixins';
+
+.HistorySlab {
+    width: 100%;
+    padding: $container-default-padding;
+    display: flex;
+    align-items: center;
+    @include default-border-bottom;
+    cursor: default;
+
+    &__contact-avatar {
+        margin-right: $container-default-padding;
+    }
+
+    &__information {
+        width: 100%;
+
+        &--top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            div:first-of-type {
+                font-weight: 600;
+            }
+
+            div:last-of-type {
+                color: $text-grey;
+            }
+        }
+
+        &--bottom {
+            color: $text-grey;
+        }
+    }
+}

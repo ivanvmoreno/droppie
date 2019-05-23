@@ -1,0 +1,14 @@
+@import '../../utils/mixins', '../../utils/colors';
+
+.SearchBar {
+    width: 100%;
+    border: 0;
+    border-radius: 5px;
+    font-size: .9rem;
+    background-color: $searchbar-grey;
+    padding: .5rem 0 .5rem .75rem;
+
+    &::placeholder {
+        color: $text-grey;
+    }
+}

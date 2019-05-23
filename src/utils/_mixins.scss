@@ -1,0 +1,33 @@
+@import '_colors';
+
+@mixin reset-css {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+@mixin flexbox-horizontal-center-space-between {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+}
+
+@mixin flexbox-horizontal-center-left {
+    display: flex;
+    align-content: center;
+}
+
+@mixin default-border-bottom {
+    border-bottom: 1px solid $grey;
+}
+
+@mixin default-side-borders {
+    border-left: 1px solid $grey;
+    border-right: 1px solid $grey;
+}
+
+$container-default-padding: .75rem;
