@@ -1,13 +1,11 @@
 const { filterSockets } = require('./utils');
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const app = express();
-const server = require('http').Server(app);
+const server = require('https').createServer({ key: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/privkey.pem'), cert: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/fullchain.pem') }, app).listen(process.env.PORT || 443, '0.0.0.0');
 const io = require('socket.io')(server);
 var useragent = require('useragent');
-
-server.listen(4000, '0.0.0.0');
-app.listen(process.env.PORT || 8080);
 
 app.use(express.static(path.join(__dirname, 'build')));
 
