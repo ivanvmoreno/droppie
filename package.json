@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "nodemon server.js && react-scripts start",
-    "build": "react-scripts build && PORT=80 node server.js"
+    "build": "react-scripts build && PORT=443 node server.js"
   },
   "eslintConfig": {
     "extends": "react-app"
