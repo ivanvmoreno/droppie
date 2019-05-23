@@ -15,7 +15,7 @@ io = io(secureServer);
 
 // HTTP (insecure) Server
 const httpServer = require('http')
-.createServer(handleInsecureConnection(req, res))
+.createServer(handleInsecureConnection)
 .listen(80);
 
 app.use(express.static(path.join(__dirname, 'build')));
