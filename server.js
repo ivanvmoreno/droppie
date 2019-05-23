@@ -4,7 +4,7 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 var useragent = require('useragent');
-const io = require('socket.io');
+var io = require('socket.io');
 
 // HTTP (secure) Server
 const secureServer = require('https')
@@ -15,7 +15,7 @@ io = io(secureServer);
 
 // HTTP (insecure) Server
 const httpServer = require('http')
-.createServer(handleInsecureConnection(req, res))
+.createServer((req, res) => handleInsecureConnection(req, res))
 .listen(80);
 
 app.use(express.static(path.join(__dirname, 'build')));
