@@ -17,7 +17,7 @@ if (process.env.DEV) {
     // HTTP (secure) Server
     const secureServer = require('https')
     .createServer({ key: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/privkey.pem'), cert: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/fullchain.pem') }, app)
-    .listen(process.env.PORT || 443, '0.0.0.0');
+    .listen(443, '0.0.0.0');
     
     io = io(secureServer);
     
