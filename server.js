@@ -3,20 +3,30 @@ const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const app = express();
-var useragent = require('useragent');
+const useragent = require('useragent');
 var io = require('socket.io');
 
-// HTTP (secure) Server
-const secureServer = require('https')
-.createServer({ key: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/privkey.pem'), cert: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/fullchain.pem') }, app)
-.listen(process.env.PORT || 443, '0.0.0.0');
+if (process.env.DEV) {
+    // HTTP (dev) Server
+    const httpServer = require('http')
+    .createServer(app)
+    .listen(8080, '0.0.0.0');
 
-io = io(secureServer);
+    io = io(httpServer);
+} else {
+    // HTTP (secure) Server
+    const secureServer = require('https')
+    .createServer({ key: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/privkey.pem'), cert: fs.readFileSync('/etc/letsencrypt/live/www.droppie.app-0001/fullchain.pem') }, app)
+    .listen(process.env.PORT || 443, '0.0.0.0');
+    
+    io = io(secureServer);
+    
+    // HTTP (insecure) Server
+    const httpServer = require('http')
+    .createServer(handleInsecureConnection)
+    .listen(80);
+}
 
-// HTTP (insecure) Server
-const httpServer = require('http')
-.createServer(handleInsecureConnection)
-.listen(80);
 
 app.use(express.static(path.join(__dirname, 'build')));
 
