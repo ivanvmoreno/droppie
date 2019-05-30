@@ -20,7 +20,7 @@
     "nodemon": "^1.19.0"
   },
   "scripts": {
-    "start": "nodemon server.js && react-scripts start",
+    "dev": "DEV=true nodemon server.js & react-scripts start",
     "build": "react-scripts build"
   },
   "eslintConfig": {
