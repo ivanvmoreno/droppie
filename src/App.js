@@ -17,7 +17,7 @@ export default class App extends Component {
 
   constructor() {
     super();
-    this.socket = new Socket(`${ window.location.protocol }//${ window.location.hostname }${ window.location.port !== '' && `:${ window.location.port }` }`);
+    this.socket = new Socket(`${ window.location.protocol }//${ window.location.hostname }${ window.location.port !== '' ? `:${ window.location.port }` : '' }`);
     this.handleSocketConnection(this.socket.client);
 
     // Override browser event handling for dragover and drop events
