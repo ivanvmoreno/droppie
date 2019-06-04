@@ -10,4 +10,15 @@ export default class Socket {
     constructor(serverUrl) {
         this.client = io(serverUrl);
     }
+
+    /**
+     * Updates the socket.io client ID
+     * @param {string} clientId - Desired custom ID
+     */
+    updateClientId = customId => {
+        this.customId = customId;
+        this.client.emit('set-custom-id', {
+            customId
+        });
+    }
 }

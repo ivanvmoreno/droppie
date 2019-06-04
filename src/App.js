@@ -17,8 +17,8 @@ export default class App extends Component {
 
   constructor() {
     super();
-    this.socket = new Socket(`${ window.location.protocol }//${ window.location.hostname }${ window.location.port !== '' && `:${ window.location.port }` }`).client;
-    this.handleSocketConnection(this.socket);
+    this.socket = new Socket(`${ window.location.protocol }//${ window.location.hostname }${ window.location.port !== '' ? `:${ window.location.port }` : '' }`);
+    this.handleSocketConnection(this.socket.client);
 
     // Override browser event handling for dragover and drop events
     window.addEventListener('dragover', ev => {
@@ -53,6 +53,29 @@ export default class App extends Component {
         });
       }
     });
+
+    // Event listener to handle remote client ID updates
+    socket.on('updated-peer', ({ originalId, customId }) => {
+      this.setState(oldState => {
+        let updatedState = {};
+        if (oldState.history[originalId] !== undefined) {
+          const { [originalId]: clientHistory, ...restHistory }  = oldState.history;
+          updatedState.history = { ...restHistory, [customId]: clientHistory };
+        }
+        const clientData = oldState.remoteSocketsList.filter(client => client.socketId === originalId)[0];
+        const restPeers = oldState.remoteSocketsList.filter(client => client.socketId !== originalId);
+        updatedState.remoteSocketsList = [{ ...clientData, socketId: customId }, ...restPeers];
+        return updatedState;
+      });
+      if (this.webRTCPeers[originalId] !== undefined) {
+        const { [originalId]: clientPeer, ...rest } = this.webRTCPeers;
+        clientPeer.remotePeerId = customId;
+        this.webRTCPeers = {
+          [customId]: clientPeer,
+          ...rest
+        };
+      }
+    });
     
     // Event listener for peer disconnection
     socket.on('disconnected-peer', data => {
@@ -77,7 +100,7 @@ export default class App extends Component {
    * @param {boolean} initiator - Indicates wheter this peer is the connection initiator
    */
   newPeer = (remotePeerId, initiator) => {
-    const peer = new WebRTCPeer(this.socket, initiator, remotePeerId, this.updateHistory);
+    const peer = new WebRTCPeer(this.socket.client, initiator, remotePeerId, this.updateHistory);
     this.webRTCPeers[remotePeerId] = peer;
     this.setState(oldState => ({
       history: {

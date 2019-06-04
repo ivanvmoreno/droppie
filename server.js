@@ -1,4 +1,4 @@
-const { filterSockets, handleInsecureConnection } = require('./utils');
+const { handleClientDiscovery, notifyUpdatedId, handleInsecureConnection, handlePeerSignaling, mapCustomId, unmapCustomId } = require('./utils');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
@@ -7,10 +7,8 @@ const useragent = require('useragent');
 var io = require('socket.io');
 
 if (process.env.DEV) {
-    // HTTP (dev) Server
-    const httpServer = require('http')
-    .createServer(app)
-    .listen(8080, '0.0.0.0');
+    // HTTP (development) Server
+    const httpServer = require('http').createServer(app).listen(8080, '0.0.0.0');
 
     io = io(httpServer);
 } else {
@@ -22,11 +20,8 @@ if (process.env.DEV) {
     io = io(secureServer);
     
     // HTTP (insecure) Server
-    const httpServer = require('http')
-    .createServer(handleInsecureConnection)
-    .listen(80);
+    const httpServer = require('http').createServer(handleInsecureConnection).listen(80);
 }
-
 
 app.use(express.static(path.join(__dirname, 'build')));
 
@@ -35,31 +30,19 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'build', 'index.htm
 
 // Socket.io connection handler
 io.on('connection', socket => {
-    const socketId = socket.id;
-    const agent = useragent.parse(socket.handshake.headers['user-agent']);
+    handleClientDiscovery(io.sockets.connected, socket);
     
-    // Filter through all connected clients and find the ones on the same local network
-    let { socketsArray, idArray } = filterSockets(io.sockets.connected, socketId, socket.handshake.address);
-    
-    // Provide a list of all available clients in its local network
-    socket.emit('list-of-peers', idArray);
-    
-    // Notify the rest of the clients a new peer has connected
-    socketsArray.forEach(socket => socket.emit('available-peer', { socketId, userAgent: { os: agent.os.family, browser: agent.family } }));
-    
-    // Handle signaling messages between peers
-    socket.on('peer-signaling', data => {
-        const { remotePeerId, signalingData } = JSON.parse(data);
-        const payload = {
-            signalingData,
-            remotePeerId: socketId
-        };
-        const clientSocket = io.sockets.connected[remotePeerId];
-        clientSocket.emit('peer-signaling', payload);
+    // Set a custom ID for this client and notify all local network peers of this change
+    socket.on('set-custom-id', ({ customId }) => {
+        notifyUpdatedId(io.sockets.connected, socket, customId);
+        socket.customId = customId;
     });
+
+    // Handle signaling exchange between peers
+    socket.on('peer-signaling', data => handlePeerSignaling(data, socket.id, io.sockets.connected));
     
     // Handle client disconnection - Broadcast the disconnected client ID to the rest of peers
     socket.on('disconnect', () => {
-        io.emit('disconnected-peer', socketId);
+        io.emit('disconnected-peer', socket.customId || socket.id);
     });
 });
